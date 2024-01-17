@@ -219,3 +219,6 @@ extraObjects:
         - namespace: '*'
           name: '*'
           server: '*'
+
+nodeSelector:
+  kubernetes.io/os: windows
