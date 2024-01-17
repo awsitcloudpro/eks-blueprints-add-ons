@@ -221,4 +221,4 @@ extraObjects:
           server: '*'
 
 nodeSelector:
-  kubernetes.io/os: windows
+  kubernetes.io/os: linux

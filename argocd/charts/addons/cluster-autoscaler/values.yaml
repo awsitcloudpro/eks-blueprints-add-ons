@@ -1,1 +1,4 @@
 # Helm chart values
+
+nodeSelector:
+  kubernetes.io/os: linux
