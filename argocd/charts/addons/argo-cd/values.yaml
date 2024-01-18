@@ -220,5 +220,6 @@ extraObjects:
           name: '*'
           server: '*'
 
-nodeSelector:
-  kubernetes.io/os: linux
+global:
+  nodeSelector:
+    kubernetes.io/os: linux
