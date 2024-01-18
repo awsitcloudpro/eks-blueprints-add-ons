@@ -1,0 +1,47 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: addons-aws-amp
+spec:
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+  generators:
+    - merge:
+        mergeKeys: [server]
+        generators:
+          - clusters:
+              values:
+                app: aws-amp
+                # anything not staging or prod use this version
+              selector:
+                matchExpressions:
+                  - key: akuity.io/argo-cd-cluster-name
+                    operator: NotIn
+                    values: [in-cluster]
+                  - key: enable_aws_amp
+                    operator: In
+                    values: ['true']
+          - clusters:
+              selector:
+                matchLabels:
+                  environment: staging
+          - clusters:
+              selector:
+                matchLabels:
+                  environment: prod
+  template:
+    metadata:
+      name: addon-{{name}}-{{values.app}}
+    spec:
+      project: default
+      source:
+        repoURL: '{{metadata.annotations.addons_repo_url}}'
+        targetRevision: '{{metadata.annotations.addons_repo_revision}}'
+        path: '{{metadata.annotations.addons_repo_basepath}}manifests/{{values.app}}'
+      destination:
+        namespace: '{{metadata.annotations.observability_namespace}}'
+        name: '{{name}}'
+      syncPolicy:
+        automated: {}
+        syncOptions: [CreateNamespace=true, ServerSideApply=true]
