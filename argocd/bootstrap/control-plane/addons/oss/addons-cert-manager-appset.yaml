@@ -7,37 +7,42 @@ spec:
   syncPolicy:
     preserveResourcesOnDeletion: true
   generators:
-    - merge:
-        mergeKeys: [server]
+    - matrix:
         generators:
-          - clusters:
-              values:
-                addonChart: cert-manager
-                # anything not staging or prod use this version
-                addonChartVersion: v1.12.4
-                addonChartRepository: https://charts.jetstack.io
-              selector:
-                matchExpressions:
-                  - key: akuity.io/argo-cd-cluster-name
-                    operator: NotIn
-                    values: [in-cluster]
-                  - key: enable_cert_manager
-                    operator: In
-                    values: ['true']
-                  - key: aws_cluster_name
-                    operator: DoesNotExist
-          - clusters:
-              selector:
-                matchLabels:
-                  environment: staging
-              values:
-                addonChartVersion: v1.12.4
-          - clusters:
-              selector:
-                matchLabels:
-                  environment: prod
-              values:
-                addonChartVersion: v1.12.4
+          - list:
+              elements:
+                - chartName: cert-manager
+                  chartVersion: 1.13.3
+                  chartRepository: https://charts.jetstack.io
+                - chartName: cert-manager-resources
+                  chartVersion: 1.0.0
+                  chartRepository: https://github.com/awsitcloudpro/eks-blueprints-add-ons/repo
+          - merge:
+              mergeKeys: [server]
+              generators:
+                - clusters:
+                    selector:
+                      matchExpressions:
+                        - key: akuity.io/argo-cd-cluster-name
+                          operator: NotIn
+                          values: [in-cluster]
+                        - key: enable_cert_manager
+                          operator: In
+                          values: ['true']
+                        - key: aws_cluster_name
+                          operator: DoesNotExist
+                - clusters:
+                    selector:
+                      matchLabels:
+                        environment: staging
+                    values:
+                      addonChartVersion: 1.13.3
+                - clusters:
+                    selector:
+                      matchLabels:
+                        environment: prod
+                    values:
+                      addonChartVersion: 1.13.3
   template:
     metadata:
       name: addon-{{name}}-{{values.addonChart}}

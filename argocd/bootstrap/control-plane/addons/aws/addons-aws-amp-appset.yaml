@@ -38,7 +38,7 @@ spec:
       source:
         repoURL: '{{metadata.annotations.addons_repo_url}}'
         targetRevision: '{{metadata.annotations.addons_repo_revision}}'
-        path: '{{metadata.annotations.addons_repo_basepath}}manifests/{{values.app}}'
+        path: '{{metadata.annotations.addons_repo_basepath}}resources/{{values.app}}'
       destination:
         namespace: '{{metadata.annotations.observability_namespace}}'
         name: '{{name}}'

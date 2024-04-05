@@ -1,0 +1,34 @@
+{{- if .Values.defaultIngressCert.enabled -}}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ingress-default
+  namespace: {{ .Values.defaultIngressCert.namespace }}
+spec:
+  # Secret names are always required.
+  secretName: ingress-default-tls
+  duration: 2160h # 90d
+  renewBefore: 360h # 15d
+  subject:
+    organizations:
+      - sample
+  isCA: false
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  usages:
+    - server auth
+    - key encipherment
+    - digital signature
+  # At least one of a DNS Name, URI, or IP address is required.
+  dnsNames:
+  {{- range .Values.defaultIngressCert.subjectNames }}
+    - {{ . | quote }}
+  {{- end }}
+  # Issuer references are always required.
+  issuerRef:
+    name: {{ .Values.defaultIngressCert.issuer }}
+    kind: ClusterIssuer
+    group: cert-manager.io
+{{- end -}}

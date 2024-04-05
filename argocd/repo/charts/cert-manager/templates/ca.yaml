@@ -1,0 +1,32 @@
+{{- $appName := "cert-manager" -}}
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ $appName }}-selfsigned
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ $appName }}-ca-root
+  namespace: {{ .Release.Namespace }}
+spec:
+  isCA: true
+  commonName: {{ $appName }}-ca-issuer
+  secretName: {{ $appName }}-ca-root
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: {{ $appName }}-selfsigned
+    kind: ClusterIssuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ $appName }}-ca-issuer
+spec:
+  ca:
+    secretName: {{ $appName }}-ca-root
